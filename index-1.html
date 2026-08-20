@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>The Man Cave</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23111'/><circle cx='50' cy='50' r='48' fill='url(%23g)'/><defs><radialGradient id='g' cx='35%25' cy='35%25'><stop offset='0' stop-color='%23444'/><stop offset='100%25' stop-color='%23000'/></radialGradient></defs><circle cx='50' cy='50' r='18' fill='white'/><text x='50' y='56' text-anchor='middle' font-size='16' font-weight='900' fill='%23111' font-family='Arial'>8</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23111'/><circle cx='50' cy='50' r='48' fill='url(%23g)'/><defs><radialGradient id='g' cx='35%25' cy='35%25'><stop offset='0' stop-color='%23444'/><stop offset='100%25' stop-color='%23000'/></radialGradient></defs><circle cx='50' cy='50' r='18' fill='white'/><text x='50' y='56' text-anchor='middle' font-size='16' font-weight='900' fill='%23111' font-family='Arial'>8</text></svg>" />
+  <style>
+    /* ============================================
+       CSS VARIABLES
+    ============================================ */
+    :root {
+      --primary: #1a6aff;
+      --primary-glow: rgba(26,106,255,0.4);
+      --bg: #0a0502;
+      --text: #f0f0f0;
+      --card: #1c1208;
+      --card-border: #2a1a0c;
+      --accent: #c9a84c;
+      --cue-white: #e8e0d0;
+      --shadow: rgba(0,0,0,0.8);
+      --input-bg: #120a04;
+      --success: #4caf50;
+      --danger: #e74c3c;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: var(--font);
+      background: #050201;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ============================================
+       APP CONTAINER
+    ============================================ */
+    #app {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      max-height: 932px;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    }
+
+    @media (min-width:500px) {
+      #app { border-radius: 32px; height: 90vh; }
+    }
+
+    /* ============================================
+       SCREENS
+    ============================================ */
+    .screen {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0; left: 0;
+      background: var(--bg);
+      transition: opacity 0.35s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .screen.active {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    /* ============================================
+       PIN SCREEN
+    ============================================ */
+    #screen-pin {
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+      background: radial-gradient(ellipse at center 20%, #0f0a05 0%, #050201 100%);
+    }
+
+    .logo-area { text-align: center; margin-bottom: 40px; }
+
+    .eight-ball {
+      font-size: 110px;
+      display: block;
+      line-height: 1;
+      filter: drop-shadow(0 0 40px var(--primary-glow));
+      animation: pulse-glow 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%,100% { filter: drop-shadow(0 0 30px var(--primary-glow)); }
+      50%      { filter: drop-shadow(0 0 60px var(--primary-glow)); }
+    }
+
+    .app-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      margin-top: 10px;
+      color: var(--cue-white);
+      text-transform: uppercase;
+    }
+    .app-title span { color: var(--primary); }
+
+    .tagline {
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 1px;
+      margin-top: 5px;
+      opacity: 0.8;
+    }
+
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 28px 0 20px;
+    }
+
+    .pin-display .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--card-border);
+      border: 1px solid #3a2a1a;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .pin-display .dot.filled {
+      background: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+      border-color: var(--primary);
+    }
+
+    .pin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .pin-btn {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 26px;
+      font-weight: 500;
+      padding: 18px 0;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--font);
+    }
+
+    .pin-btn:active {
+      transform: scale(0.93);
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .pin-btn.del { font-size: 22px; }
+    .pin-btn.empty { pointer-events: none; background: transparent; border-color: transparent; }
+
+    .pin-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 14px;
+      min-height: 20px;
+      text-align: center;
+    }
+
+    .pin-hint {
+      font-size: 12px;
+      color: var(--text);
+      opacity: 0.3;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    /* ============================================
+       MAIN SCREEN
+    ============================================ */
+    #screen-main { flex-direction: column; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand .ball-icon {
+      font-size: 26px;
+      filter: drop-shadow(0 0 8px var(--primary-glow));
+    }
+
+    .brand .name {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--cue-white);
+      text-transform: uppercase;
+    }
+    .brand .name span { color: var(--primary); }
+
+    .top-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .top-actions button {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+      padding: 4px;
+    }
+
+    .top-actions button:hover { opacity: 1; }
+
+    /* ---- CONTENT ---- */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px 100px;
+      scroll-behavior: smooth;
+    }
+
+    .content-area::-webkit-scrollbar { width: 3px; }
+    .content-area::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+    /* ---- BOTTOM NAV ---- */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 0 env(safe-area-inset-bottom, 12px);
+      border-top: 1px solid var(--card-border);
+      flex-shrink: 0;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 20;
+      background: rgba(10,5,2,0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      opacity: 0.35;
+      cursor: pointer;
+      padding: 6px 8px;
+      transition: all 0.2s;
+      font-family: var(--font);
+      flex: 1;
+    }
+
+    .nav-item .nav-icon { font-size: 20px; line-height: 1; }
+    .nav-item .nav-label { font-size: 9px; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+    .nav-item.active {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    .nav-item.active .nav-icon {
+      filter: drop-shadow(0 0 10px var(--primary-glow));
+    }
+
+    /* ============================================
+       SECTION PAGES
+    ============================================ */
+    .section-page { display: none; animation: fade-up 0.3s ease; }
+    .section-page.active { display: block; }
+
+    @keyframes fade-up {
+      0%   { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cue-white);
+      margin-bottom: 2px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--accent);
+      opacity: 0.7;
+      margin-bottom: 18px;
+    }
+
+    /* ============================================
+       CHAT - THE ROOM
+    ============================================ */
+    .voice-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: border 0.2s;
+      margin-bottom: 14px;
+    }
+
+    .voice-toggle:hover { border-color: var(--accent); }
+
+    .voice-toggle .vt-emoji { font-size: 18px; }
+
+    .voice-toggle .vt-text {
+      flex: 1;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+
+    .vt-track {
+      width: 38px;
+      height: 20px;
+      background: var(--card-border);
+      border-radius: 12px;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .vt-track .vt-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--text);
+      border-radius: 50%;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: all 0.3s;
+    }
+
+    .voice-toggle.on .vt-track { background: var(--accent); }
+    .voice-toggle.on .vt-track .vt-thumb { left: 20px; background: #fff; }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 160px;
+    }
+
+    .chat-msg {
+      max-width: 86%;
+      padding: 13px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.55;
+      animation: msg-in 0.28s ease;
+    }
+
+    @keyframes msg-in {
+      0%   { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .chat-msg.marcus {
+      align-self: flex-start;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-msg.marcus .msg-label {
+      font-size: 10px;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-msg .ts {
+      font-size: 9px;
+      opacity: 0.4;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .typing-indicator.show { display: flex; }
+
+    .typing-indicator .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: bounce 1.1s infinite;
+    }
+
+    .typing-indicator .dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-indicator .dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%,80%,100% { transform: translateY(0); opacity:0.5; }
+      40%          { transform: translateY(-6px); opacity:1; }
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+      margin-top: 10px;
+      position: sticky;
+      bottom: 0;
+      background: var(--bg);
+    }
+
+    .chat-input-area input {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 11px 18px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font);
+      outline: none;
+      transition: border 0.2s;
+      user-select: text;
+    }
+
+    .chat-input-area input:focus { border-color: var(--primary); }
+    .chat-input-area input::placeholder { color: var(--text); opacity: 0.25; }
+
+    .chat-input-area button {
+      background: var(--primary);
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px var(--primary-glow);
+      transition: transform 0.15s;
+    }
+
+    .chat-input-area button:active { transform: scale(0.91); }
+
+    /* ============================================
+       JOURNAL - THE PAGES
+    ============================================ */
+    .prompt-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .prompt-card .prompt-text {
+      font-size: 14px;
+      color: var(--accent);
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .prompt-card .prompt-tag {
+      font-size: 11px;
+      opacity: 0.4;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .prompt-card .refresh-btn {
+      float: right;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.5;
+      margin-top: -2px;
+      transition: opacity 0.2s, transform 0.3s;
+    }
+
+    .prompt-card .refresh-btn:hover { opacity: 1; }
+    .prompt-card .refresh-btn.spin { transform: rotate(360deg); }
+
+    textarea.journal-entry {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      width: 100%;
+      min-height: 150px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font);
+      resize: vertical;
+      outline: none;
+      transition: border 0.2s;
+      line-height: 1.6;
+      user-select: text;
+    }
+
+    textarea.journal-entry:focus { border-color: var(--primary); }
+    textarea.journal-entry::placeholder { color: var(--text); opacity: 0.2; }
+
+    .journal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 22px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--primary-glow);
+      transition: transform 0.15s;
+    }
+
+    .btn-save:active { transform: scale(0.95); }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      font-family: var(--font);
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent); }
+    .btn-secondary:active { transform: scale(0.95); }
+
+    .entries-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0 14px;
+    }
+
+    .entries-divider span {
+      font-size: 11px;
+      color: var(--accent);
+      opacity: 0.5;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .entries-divider::before, .entries-divider::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .entry-item {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: border 0.2s;
+      position: relative;
+    }
+
+    .entry-item:hover { border-color: var(--primary); }
+
+    .entry-item .entry-date {
+      font-size: 10px;
+      opacity: 0.4;
+      display: block;
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+
+    .entry-item .entry-preview {
+      font-size: 13px;
+      opacity: 0.75;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.5;
+    }
+
+    .entry-item .entry-del {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      font-size: 14px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      padding: 4px;
+    }
+
+    .entry-item:hover .entry-del { opacity: 0.5; }
+    .entry-item .entry-del:hover { opacity: 1 !important; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      opacity: 0.35;
+    }
+
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 8px; }
+    .empty-state p { font-size: 13px; line-height: 1.5; }
+
+    /* ============================================
+       MOOD CHECK - THE CORNER
+    ============================================ */
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mood-btn {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font);
+      color: var(--text);
+    }
+
+    .mood-btn .mood-emoji { font-size: 30px; display: block; margin-bottom: 6px; }
+    .mood-btn .mood-label { font-size: 11px; opacity: 0.6; }
+
+    .mood-btn:active { transform: scale(0.94); }
+
+    .mood-btn.selected {
+      border-color: var(--primary);
+      background: rgba(26,106,255,0.12);
+      box-shadow: 0 0 14px rgba(26,106,255,0.2);
+    }
+
+    .mood-btn.selected .mood-label { opacity: 1; color: var(--primary); }
+
+    .mood-log {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .mood-log .log-title {
+      font-size: 12px;
+      color: var(--accent);
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .mood-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .mood-row:last-child { border-bottom: none; }
+
+    .mood-row .row-emoji { font-size: 20px; }
+
+    .mood-row .row-info { flex: 1; }
+    .mood-row .row-info .row-label { font-size: 13px; }
+    .mood-row .row-info .row-date { font-size: 10px; opacity: 0.4; }
+
+    /* ============================================
+       SETTINGS - THE LOCKER
+    ============================================ */
+    .settings-group {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .settings-group .group-label {
+      font-size: 10px;
+      color: var(--accent);
+      opacity: 0.6;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 12px 16px 8px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-top: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .setting-row:hover { background: rgba(255,255,255,0.03); }
+
+    .setting-row .row-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .setting-row .row-icon { font-size: 18px; width: 26px; text-align: center; }
+    .setting-row .row-title { font-size: 14px; }
+    .setting-row .row-sub { font-size: 11px; opacity: 0.4; margin-top: 1px; }
+
+    .setting-row .row-right {
+      font-size: 14px;
+      opacity: 0.35;
+    }
+
+    .toggle-pill {
+      width: 42px;
+      height: 24px;
+      background: var(--card-border);
+      border-radius: 14px;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .toggle-pill .pill-thumb {
+      width: 18px;
+      height: 18px;
+      background: #888;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px; left: 3px;
+      transition: all 0.3s;
+    }
+
+    .toggle-pill.on { background: var(--primary); }
+    .toggle-pill.on .pill-thumb { left: 21px; background: #fff; }
+
+    .danger-btn {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: 12px;
+      padding: 12px;
+      width: 100%;
+      font-family: var(--font);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+
+    .danger-btn:hover { background: rgba(231,76,60,0.1); }
+
+    /* ============================================
+       THE TRUTH - HARD QUESTIONS
+    ============================================ */
+    .truth-intro {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--danger);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .truth-intro p {
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.75;
+    }
+
+    .truth-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 15px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .truth-card:hover { border-color: rgba(231,76,60,0.5); }
+    .truth-card.open  { border-color: var(--danger); }
+
+    .truth-card .truth-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--cue-white);
+      line-height: 1.4;
+    }
+
+    .truth-card .truth-q .q-text { flex: 1; padding-right: 10px; }
+
+    .truth-card .truth-chevron {
+      font-size: 16px;
+      color: var(--accent);
+      opacity: 0.5;
+      flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+
+    .truth-card.open .truth-chevron { transform: rotate(180deg); opacity: 1; }
+
+    .truth-card .truth-a {
+      display: none;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text);
+      opacity: 0.85;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+      margin-top: 12px;
+    }
+
+    .truth-card.open .truth-a { display: block; }
+
+    /* Woman's perspective box inside truth answers */
+    .womans-voice {
+      background: rgba(192,132,224,0.08);
+      border: 1px solid rgba(192,132,224,0.25);
+      border-left: 3px solid #c084e0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+
+    .womans-voice .wv-label {
+      font-size: 10px;
+      color: #c084e0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .womans-voice .wv-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      opacity: 0.85;
+      font-style: italic;
+    }
+
+    /* Settings inputs */
+    .settings-input-wrap {
+      padding: 12px 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .settings-input-wrap label {
+      font-size: 11px;
+      opacity: 0.5;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .settings-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font);
+      outline: none;
+      transition: border 0.2s;
+      user-select: text;
+    }
+
+    .settings-input:focus { border-color: var(--primary); }
+    .settings-input::placeholder { color: var(--text); opacity: 0.25; }
+
+    .settings-input-btn {
+      margin-top: 8px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 18px;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .settings-input-btn:active { opacity: 0.8; }
+
+    /* Color pickers */
+    .color-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-row label {
+      font-size: 12px;
+      opacity: 0.6;
+      flex: 1;
+    }
+
+    .color-row input[type="color"] {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 2px;
+      background: var(--card-border);
+    }
+
+    /* Photo upload */
+    .photo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      display: none;
+    }
+
+    .photo-preview.show { display: block; }
+
+    .photo-upload-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .photo-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px dashed rgba(255,255,255,0.15);
+      transition: border-color 0.2s;
+    }
+
+    .photo-placeholder:hover { border-color: var(--primary); }
+
+    .photo-upload-info .pu-title { font-size: 14px; margin-bottom: 3px; }
+    .photo-upload-info .pu-sub   { font-size: 11px; opacity: 0.4; }
+
+    /* Backup buttons */
+    .backup-row {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .backup-btn {
+      flex: 1;
+      background: var(--card-border);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+    }
+
+    .backup-btn:hover { background: rgba(255,255,255,0.08); }
+    .backup-btn .bb-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+    .truth-section-label {
+      font-size: 10px;
+      color: var(--accent);
+      opacity: 0.5;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin: 22px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .truth-section-label::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .remedy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .remedy-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .remedy-card:hover { border-color: var(--accent); }
+
+    .remedy-card .rem-emoji { font-size: 28px; display: block; margin-bottom: 7px; }
+    .remedy-card .rem-name  { font-size: 13px; font-weight: 600; color: var(--cue-white); }
+    .remedy-card .rem-desc  { font-size: 11px; opacity: 0.55; margin-top: 4px; line-height: 1.4; }
+
+    /* ============================================
+       MODAL
+    ============================================ */
+    .modal-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 50;
+      justify-content: center;
+      align-items: flex-end;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--card);
+      border-top: 1px solid var(--card-border);
+      border-radius: 24px 24px 0 0;
+      padding: 20px 22px 40px;
+      width: 100%;
+      animation: slide-up 0.3s ease;
+    }
+
+    @keyframes slide-up {
+      0%   { transform: translateY(100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--card-border);
+      border-radius: 4px;
+      margin: 0 auto 20px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--cue-white);
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
+
+    .modal-entry {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+
+    .modal-actions { display: flex; gap: 10px; }
+
+    .toast {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--success);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ======================================
+       SCREEN 1: PIN LOCK
+  ====================================== -->
+  <div id="screen-pin" class="screen active">
+    <div class="logo-area">
+      <span class="eight-ball">🎱</span>
+      <div class="app-title">The <span>Man</span> Cave</div>
+      <div class="tagline">your space. your rules. no audience.</div>
+    </div>
+
+    <div class="pin-display" id="pinDisplay">
+      <div class="dot" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn empty"></button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del" onclick="pinDel()">⌫</button>
+    </div>
+
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-hint" id="pinHint">enter your PIN to enter the cave</div>
+  </div>
+
+  <!-- ======================================
+       SCREEN 2: MAIN APP
+  ====================================== -->
+  <div id="screen-main" class="screen">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="brand">
+        <span class="ball-icon">🎱</span>
+        <div class="name">The <span>Man</span> Cave</div>
+      </div>
+      <div class="top-actions">
+        <button onclick="lockApp()" title="Lock">🔒</button>
+        <button onclick="openSettings()" title="Settings">⚙️</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area" id="contentArea">
+
+      <!-- 🏠 THE ROOM - MARCUS CHAT -->
+      <div class="section-page active" id="page-room">
+        <div class="section-title">The Room 🎱</div>
+        <div class="section-sub">Marcus is here. Say what you actually feel.</div>
+
+        <!-- Woman's Voice Toggle -->
+        <div class="voice-toggle" id="voiceToggle" onclick="toggleVoice()">
+          <span class="vt-emoji">👩</span>
+          <div class="vt-text">Woman's Voice Mode - hear it from her side</div>
+          <div class="vt-track"><div class="vt-thumb"></div></div>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+          <div class="chat-msg marcus">
+            <div class="msg-label">🎱 Marcus</div>
+            Pull up a chair. Nobody's watching. What's on your mind?
+            <span class="ts" id="initTs"></span>
+          </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+
+        <div class="chat-input-area">
+          <input type="text" id="chatInput" placeholder="Talk to Marcus..." autocomplete="off" />
+          <button onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+
+      <!-- 📖 THE PAGES - JOURNAL -->
+      <div class="section-page" id="page-pages">
+        <div class="section-title">The Pages 📖</div>
+        <div class="section-sub">Private. Permanent. Yours.</div>
+
+        <div class="prompt-card">
+          <button class="refresh-btn" onclick="refreshPrompt(this)" title="New prompt">↻</button>
+          <div class="prompt-text" id="journalPrompt">Loading your prompt…</div>
+          <div class="prompt-tag">Today's Question</div>
+        </div>
+
+        <textarea class="journal-entry" id="journalEntry" placeholder="No one reads this but you…"></textarea>
+
+        <div class="journal-actions">
+          <button class="btn-save" onclick="saveEntry()">Save Entry</button>
+          <button class="btn-secondary" onclick="clearEntry()">Clear</button>
+        </div>
+
+        <div class="entries-divider">
+          <span>Past Entries</span>
+        </div>
+
+        <div id="entriesList"></div>
+      </div>
+
+      <!-- 🎯 THE CORNER - MOOD CHECK -->
+      <div class="section-page" id="page-corner">
+        <div class="section-title">The Corner 🎯</div>
+        <div class="section-sub">Quick check-in. No lectures. Just tracking.</div>
+
+        <div class="mood-grid" id="moodGrid">
+          <button class="mood-btn" onclick="selectMood(this, 'Solid 💪', '💪')">
+            <span class="mood-emoji">💪</span>
+            <span class="mood-label">Solid</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Tired 😮‍💨', '😮‍💨')">
+            <span class="mood-emoji">😮‍💨</span>
+            <span class="mood-label">Tired</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Stressed 🔥', '🔥')">
+            <span class="mood-emoji">🔥</span>
+            <span class="mood-label">Stressed</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Good 😌', '😌')">
+            <span class="mood-emoji">😌</span>
+            <span class="mood-label">Good</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Angry 😤', '😤')">
+            <span class="mood-emoji">😤</span>
+            <span class="mood-label">Angry</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Low 🌑', '🌑')">
+            <span class="mood-emoji">🌑</span>
+            <span class="mood-label">Low</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Proud 🏆', '🏆')">
+            <span class="mood-emoji">🏆</span>
+            <span class="mood-label">Proud</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Numb 🧊', '🧊')">
+            <span class="mood-emoji">🧊</span>
+            <span class="mood-label">Numb</span>
+          </button>
+          <button class="mood-btn" onclick="selectMood(this, 'Mixed ↕️', '↕️')">
+            <span class="mood-emoji">↕️</span>
+            <span class="mood-label">Mixed</span>
+          </button>
+        </div>
+
+        <div class="mood-log">
+          <div class="log-title">Recent Check-ins</div>
+          <div id="moodLog">
+            <div class="empty-state">
+              <div class="empty-icon">🌑</div>
+              <p>No check-ins yet.<br>How are you feeling right now?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔥 THE TRUTH - HARD QUESTIONS -->
+      <div class="section-page" id="page-truth">
+        <div class="section-title">The Truth 🔥</div>
+        <div class="section-sub">The questions men Google at 2am. Answered straight.</div>
+
+        <div class="truth-intro">
+          <p>Nobody taught you this stuff. Nobody talked about it. Each question has two answers - the straight facts, and what a woman actually thinks. Tap to open.</p>
+        </div>
+
+        <div class="truth-section-label">Body & Size</div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Why does my penis look smaller than other guys'?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Porn has lied to you. Locker rooms have lied to you. The average erect length is 5.1 to 5.5 inches - and 85% of men fall in this range. If you're there, you're normal. Not "small for a man" - literally statistically normal. If you're below that range, it's genetics, hormones during fetal development, factors that had nothing to do with your choices or your character. Cold also causes temporary shrinkage that has nothing to do with your actual size. The question isn't why - it's what you do with what you have.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">We genuinely don't spend as much time thinking about your size as you think we do. What I notice is how confident you are, how present you are, how tuned in you are to me. A man who's anxious and in his head is far less satisfying than a man who's confident and engaged - regardless of what he's working with.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Is my size actually a problem for women?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Multiple large-scale studies - including surveys of thousands of women - consistently show size ranks low on what women prioritize in sexual satisfaction. The vaginal canal is about 3 to 4 inches deep at rest. What women consistently report mattering most: emotional presence, attentiveness, how you make them feel, whether you pay attention to their cues. Size anxiety is largely a male-to-male competition disguised as concern about women.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">I've been with men of very different sizes. The ones who were the most satisfying weren't the biggest - they were the most attentive. The ones who made it about their size were often the least enjoyable to be with. Your obsession with it tells me more about your confidence than your body does.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-section-label">Performance & Erections</div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Why can't I stay hard during sex?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            In men under 40, this is almost never a physical problem - it's a mental one. The moment you start monitoring your erection instead of experiencing the moment, it fades. Anxiety triggers adrenaline. Adrenaline constricts blood vessels. Erections require blood flow. The harder you try to stay hard, the worse it gets - because trying is the problem. The fix isn't a pill. It's getting out of your head. Being with someone who doesn't make you feel judged. Slowing the whole thing down. Breathing. Being in the moment instead of watching yourself.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">When this happens, most of us don't take it personally - we just don't know what to do. If you told me "I'm in my head right now, can we just slow down," I'd work with that. What makes it worse for both of us is when you pull away and go silent. We feel like we did something wrong. Talk to her.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Is something medically wrong with me?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Occasional difficulty is normal and happens to most men at some point. If it's regular - especially if you no longer wake up with morning erections - that's worth seeing a doctor about. High blood pressure, diabetes, low testosterone, and cardiovascular issues all affect blood flow. Certain medications do too. But if you still get erections during sleep, when watching something, or when alone - the hardware works. The problem is upstairs. Track when it happens, what was happening emotionally, how stressed you were. That data matters.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">Please go to the doctor. Not for me - for you. Men put off health checks for years out of pride and it costs them. If something physical is affecting you, catching it early changes everything. It's not weakness to take your health seriously. It's actually attractive.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Why do I finish too fast?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            This affects roughly 1 in 3 men - it's the most common male sexual concern. It's not weakness or being "bad in bed." It's usually anxiety, sensitivity, and conditioned patterns from years of rushing through solo activity. The start-stop technique, the squeeze method, slowing the entire encounter down, and kegel exercises (yes, men do them too) all strengthen pelvic control significantly. It's trainable. It takes practice and patience, not shame.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">What matters after is how you handle it. If you shut down in embarrassment and the moment dies - that's disappointing. If you stay present, take care of her, and show you're still in it - most women will not make it a big deal. Your response to it matters more than the thing itself.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-section-label">Self-Worth & Shame</div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">I feel ashamed of my body. Is that normal?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Yes - and nobody talks about it because men aren't supposed to. Male body shame is real, it's rising, and it's being made worse by social media and the same impossible standards that have been destroying women's self-image for decades. The shame usually goes underground and turns into silence, rage, or withdrawal. What helps is separating what your body does from what it looks like. Does it carry you? Does it let you feel things? Does it work when you take care of it? That's where to start.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">I want you to know that most women are not scrutinizing your body the way you scrutinize it. We're watching how you carry yourself. Confidence and comfort in your own skin is far more attractive than a perfect body worn awkwardly. The man who takes his shirt off without apologizing for it is more attractive than the man with abs who can't stop asking if we're okay with what we see.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Will she leave me because of my performance?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            If a woman leaves without a word, without ever giving you the chance to work through it together - she was judging, not partnering. Women who genuinely love men understand that bodies change, performance varies, stress affects everything, age affects everything. What women actually leave over is feeling consistently unseen, unheard, dismissed. The man who shows up honestly - who says "this is what's happening with me" without shame - is doing more for the relationship than the man who performs perfectly and hides everything.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">I've stayed with men through difficult periods. What made me stay wasn't their performance - it was that they let me in. What made me leave other men had nothing to do with sex. It was feeling like I was living with a closed door. Let her in. That's what keeps a woman.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-section-label">Anger & Inadequacy</div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Why am I so angry - and why is it often at women?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Anger at women is often displaced anger at yourself - at your own feelings of inadequacy, powerlessness, or unmet needs you can't name. Men are taught that vulnerability is dangerous, so pain turns into anger because anger at least feels like control. If you feel rejected, humiliated, or like you can't measure up - and you have no tools to process that - anger is what comes out. It's not justified to direct it at women. But understanding where it comes from is the first honest step toward dealing with it.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">I've been on the receiving end of this and I want to tell you: it pushes us away. Not because we don't understand pain - we do. But anger as a first response to vulnerability tells us it's not safe to be close to you. The men I've loved most deeply were the ones who could say "I'm hurting" without it turning into blame. That takes courage. It's worth developing.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Why do I feel inadequate no matter what I do?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            Chronic inadequacy usually has roots in early experiences - being told you weren't enough, watching a father be dismissed, being held to standards that moved every time you reached them. It becomes the lens through which you see everything: your size, your income, your performance. The standard was set by someone else's unresolved pain and handed to you. It was never real. Recognizing that is the beginning of being able to set your own measure of enough.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">When a man constantly needs reassurance that he's enough - it becomes exhausting. Not because we don't care, but because we can't fill a hole that was dug before we met you. I can love you. I can't fix your relationship with yourself. That work is yours to do - and doing it is the most attractive thing you could give both of us.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-card" onclick="toggleTruth(this)">
+          <div class="truth-q"><span class="q-text">Is it too late for me to change?</span><span class="truth-chevron">▾</span></div>
+          <div class="truth-a">
+            No. The brain is neuroplastic - it rewires with new patterns, at any age. Bodies respond to lifestyle changes - sleep, diet, exercise, stress reduction - at any age. Emotional habits can be unlearned and rebuilt. The men who change aren't the ones who had the easiest starting point. They're the ones who got honest with themselves, stopped waiting for someone else to fix it, and started making one different choice. That's all it takes to begin.
+            <div class="womans-voice">
+              <div class="wv-label">👩 Her Honest Take</div>
+              <div class="wv-text">A man who is actively working on himself is one of the most compelling things I've ever witnessed. Not perfect - working. That effort is visible. It changes the energy you bring into a room, into a relationship. It's never too late. I've seen men transform in their 50s and 60s. The ones who try are the ones I respect most.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="truth-section-label">Natural Remedies 🌿</div>
+
+        <div class="remedy-grid">
+          <div class="remedy-card"><span class="rem-emoji">🌱</span><div class="rem-name">Maca Root</div><div class="rem-desc">Boosts libido and energy. Studied in men with low sexual desire. No hormonal side effects.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🍃</span><div class="rem-name">Ashwagandha</div><div class="rem-desc">Lowers cortisol. Improves testosterone levels and performance under stress. Take daily.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🌿</span><div class="rem-name">Horny Goat Weed</div><div class="rem-desc">Contains icariin - works similarly to ED meds by increasing blood flow. Traditional for centuries.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🫚</span><div class="rem-name">L-Arginine</div><div class="rem-desc">Amino acid that boosts nitric oxide - the chemical that makes erections physically possible. Found in meat, fish, nuts.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🌾</span><div class="rem-name">Korean Ginseng</div><div class="rem-desc">Strong clinical evidence for improving erection quality and overall sexual satisfaction.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🏋️</span><div class="rem-name">Exercise</div><div class="rem-desc">Leg day + cardio improve circulation directly. Kegels strengthen pelvic control. Most underrated fix.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">😴</span><div class="rem-name">Sleep</div><div class="rem-desc">Testosterone is produced during deep sleep. Less sleep = lower T, worse erections, lower libido.</div></div>
+          <div class="remedy-card"><span class="rem-emoji">🚫</span><div class="rem-name">Cut Vices</div><div class="rem-desc">Alcohol, smoking, and excessive porn directly reduce sexual function. Porn rewires arousal patterns.</div></div>
+        </div>
+      </div>
+
+      <!-- 📊 THE TRACK - HEALTH TRACKER -->
+      <div class="section-page" id="page-track">
+        <div class="section-title">The Track 📊</div>
+        <div class="section-sub">Doctor-prescribed or natural - be honest about both. Not medical advice, just your own record.</div>
+
+        <div class="truth-intro">
+          <p>Track what you're actually doing and how you actually feel. Bring the pattern to your next doctor's visit - not to self-diagnose, but to have a real conversation.</p>
+        </div>
+
+        <div class="settings-group">
+          <div class="group-label">Today's Entry</div>
+          <div class="settings-input-wrap">
+            <label>What I did today (medication, natural remedy, exercise, etc.)</label>
+            <textarea class="settings-input" id="trackDidInput" rows="2" placeholder="e.g. Took prescribed dose, 20 min walk, ashwagandha in the morning"></textarea>
+          </div>
+          <div class="settings-input-wrap">
+            <label>How I felt</label>
+            <textarea class="settings-input" id="trackFeltInput" rows="2" placeholder="e.g. Steadier energy, slept better, still tired by afternoon"></textarea>
+          </div>
+          <button class="settings-input-btn" onclick="addTrackEntry()">Log Today's Entry 📊</button>
+        </div>
+
+        <div class="mood-log">
+          <div class="log-title">Your Last 14 Entries</div>
+          <div id="trackLog">
+            <div class="empty-state">
+              <div class="empty-icon">📊</div>
+              <p>No entries yet.<br>What did you do for your body today?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="group-label">Doctor-Visit Prep</div>
+          <div class="settings-input-wrap">
+            <label>What I've noticed about my body</label>
+            <textarea class="settings-input" id="trackNoticed" rows="2" placeholder="Be specific - what's changed?"></textarea>
+          </div>
+          <div class="settings-input-wrap">
+            <label>How long it's been happening</label>
+            <textarea class="settings-input" id="trackHowLong" rows="1" placeholder="Weeks, months..."></textarea>
+          </div>
+          <div class="settings-input-wrap">
+            <label>Medications I'm currently taking</label>
+            <textarea class="settings-input" id="trackMeds" rows="2" placeholder="List them, even if you're not consistent with them"></textarea>
+          </div>
+          <div class="settings-input-wrap">
+            <label>The one thing I'm most afraid to say out loud</label>
+            <textarea class="settings-input" id="trackAfraid" rows="2" placeholder="This is for you. Write it anyway."></textarea>
+          </div>
+          <button class="settings-input-btn" onclick="saveTrackPrep()">Save Doctor-Visit Notes 🩺</button>
+        </div>
+      </div>
+
+      <!-- ⚙️ THE LOCKER - SETTINGS -->
+      <div class="section-page" id="page-locker">
+        <div class="section-title">The Locker ⚙️</div>
+        <div class="section-sub">Your cave, your rules.</div>
+
+        <!-- SECURITY -->
+        <div class="settings-group">
+          <div class="group-label">Security</div>
+          <div class="setting-row" onclick="changePIN()">
+            <div class="row-left"><span class="row-icon">🔑</span><div><div class="row-title">Change PIN</div><div class="row-sub">Update your 4-digit access code</div></div></div>
+            <span class="row-right">›</span>
+          </div>
+          <div class="setting-row" onclick="toggleAutoLock()">
+            <div class="row-left"><span class="row-icon">⏱️</span><div><div class="row-title">Auto-Lock</div><div class="row-sub">Lock when you leave the app</div></div></div>
+            <div class="toggle-pill on" id="autoLockToggle"><div class="pill-thumb"></div></div>
+          </div>
+        </div>
+
+        <!-- MARCUS + API -->
+        <div class="settings-group">
+          <div class="group-label">Marcus</div>
+          <div class="setting-row" onclick="toggleVoiceFromSettings()">
+            <div class="row-left"><span class="row-icon">👩</span><div><div class="row-title">Woman's Voice Mode</div><div class="row-sub">Straight-talking female perspective</div></div></div>
+            <div class="toggle-pill" id="voiceSettingToggle"><div class="pill-thumb"></div></div>
+          </div>
+          <div class="setting-row" onclick="clearChat()">
+            <div class="row-left"><span class="row-icon">🗑️</span><div><div class="row-title">Clear Chat History</div><div class="row-sub">Start fresh with Marcus</div></div></div>
+            <span class="row-right">›</span>
+          </div>
+        </div>
+
+        <!-- PROFILE PHOTO -->
+        <div class="settings-group">
+          <div class="group-label">Your Profile</div>
+          <div class="photo-upload-area">
+            <div class="photo-placeholder" id="photoPlaceholder" onclick="document.getElementById('photoFileInput').click()">
+              <img class="photo-preview" id="photoPreview" src="" alt="Photo" />
+              <span id="photoIcon">👤</span>
+            </div>
+            <div class="photo-upload-info">
+              <div class="pu-title">Profile Photo</div>
+              <div class="pu-sub">Tap to upload from your phone.<br>Stored locally only.</div>
+            </div>
+            <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)" />
+          </div>
+        </div>
+
+        <!-- COLOR CUSTOMIZATION -->
+        <div class="settings-group">
+          <div class="group-label">Cave Colors</div>
+          <div class="color-grid">
+            <div class="color-row">
+              <label>Primary</label>
+              <input type="color" id="clr-primary" value="#1a6aff" oninput="applyColor('--primary', this.value)" />
+            </div>
+            <div class="color-row">
+              <label>Background</label>
+              <input type="color" id="clr-bg" value="#0a0502" oninput="applyColor('--bg', this.value)" />
+            </div>
+            <div class="color-row">
+              <label>Accent</label>
+              <input type="color" id="clr-accent" value="#c9a84c" oninput="applyColor('--accent', this.value)" />
+            </div>
+            <div class="color-row">
+              <label>Text</label>
+              <input type="color" id="clr-text" value="#f0f0f0" oninput="applyColor('--text', this.value)" />
+            </div>
+            <div class="color-row">
+              <label>Card</label>
+              <input type="color" id="clr-card" value="#1c1208" oninput="applyColor('--card', this.value)" />
+            </div>
+            <div class="color-row">
+              <label>Card Border</label>
+              <input type="color" id="clr-border" value="#2a1a0c" oninput="applyColor('--card-border', this.value)" />
+            </div>
+          </div>
+          <div style="padding:0 16px 14px;">
+            <button class="settings-input-btn" onclick="saveColors()" style="margin-right:8px">Save Colors 🎨</button>
+            <button class="btn-secondary" style="font-size:13px;padding:9px 14px;" onclick="resetColors()">Reset</button>
+          </div>
+        </div>
+
+        <!-- DATA BACKUP -->
+        <div class="settings-group">
+          <div class="group-label">Data Backup</div>
+          <div class="setting-row">
+            <div class="row-left"><span class="row-icon">🛡️</span><div><div class="row-title">No Account Required</div><div class="row-sub">Nothing leaves this device</div></div></div>
+            <span class="row-right">✓</span>
+          </div>
+          <div class="backup-row">
+            <button class="backup-btn" onclick="downloadBackup()">
+              <span class="bb-icon">⬇️</span>Download Backup
+            </button>
+            <button class="backup-btn" onclick="document.getElementById('restoreFileInput').click()">
+              <span class="bb-icon">⬆️</span>Restore Backup
+            </button>
+            <input type="file" id="restoreFileInput" accept=".json" style="display:none" onchange="uploadBackup(event)" />
+          </div>
+        </div>
+
+        <button class="danger-btn" onclick="clearAllData()">⚠️ Wipe All Cave Data</button>
+      </div>
+
+    </div><!-- end .content-area -->
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" id="nav-room" onclick="switchTab('room')">
+        <span class="nav-icon">🎱</span>
+        <span class="nav-label">Room</span>
+      </button>
+      <button class="nav-item" id="nav-pages" onclick="switchTab('pages')">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">Pages</span>
+      </button>
+      <button class="nav-item" id="nav-corner" onclick="switchTab('corner')">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-label">Corner</span>
+      </button>
+      <button class="nav-item" id="nav-truth" onclick="switchTab('truth')">
+        <span class="nav-icon">🔥</span>
+        <span class="nav-label">Truth</span>
+      </button>
+      <button class="nav-item" id="nav-track" onclick="switchTab('track')">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Track</span>
+      </button>
+      <button class="nav-item" id="nav-locker" onclick="switchTab('locker')">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Locker</span>
+      </button>
+    </nav>
+
+  </div><!-- end screen-main -->
+
+  <!-- ENTRY VIEW MODAL -->
+  <div class="modal-overlay" id="entryModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Entry</div>
+      <div class="modal-sub" id="modalDate"></div>
+      <div class="modal-entry" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Close</button>
+        <button class="btn-save" onclick="deleteFromModal()">Delete Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- end #app -->
+
+<script>
+/* =============================================
+   STATE
+============================================= */
+const DEFAULT_PIN = '1234';
+let pinBuffer = '';
+let voiceMode = false;  // Woman's Voice toggle
+let autoLock = true;
+let journalEntries = [];
+let moodLog = [];
+let trackLog = [];
+let trackPrep = { noticed: '', howLong: '', meds: '', afraid: '' };
+let chatHistory = [];
+let currentModalIndex = null;
+let activeTab = 'room';
+
+const PROMPTS = [
+  "When did you last do something just for yourself - not for work, not for her, not for anyone else?",
+  "What's a feeling you've been carrying this week that nobody knows about?",
+  "What would you do differently if you weren't worried about what people thought?",
+  "Name something you're proud of that you've never actually said out loud.",
+  "What do you actually need right now - not want. Need.",
+  "What are you angry about that you haven't admitted yet?",
+  "Who in your life actually sees you - not the version you perform?",
+  "What does success really mean to you, not what they told you it should mean?",
+  "What's something you pretend doesn't bother you - that actually does?",
+  "What do you wish the women in your life understood about you?",
+  "What's a fear you've never put into words?",
+  "How are you really doing with your body - health, energy, how you feel in your skin?",
+  "What's one thing you need to stop doing to yourself?",
+  "What does a good day actually feel like for you?",
+  "When did you last feel genuinely confident - not performing it, actually feeling it?",
+  "What has nobody ever told you about your own body that you wish someone had?",
+  "Write about a time your body let you down. What did you tell yourself about it?",
+  "How much of your self-worth is tied to your sexual performance? Is that fair to you?",
+  "What would you say to a younger version of yourself about shame, sex, and your body?",
+  "Have you ever avoided intimacy because you were scared of what might happen? Write about that.",
+  "What's the difference between how you act with women and how you actually feel inside?",
+  "What do you actually believe about yourself - not what you say. What do you believe?",
+  "If your body could talk, what would it ask you to stop doing to it?",
+  "Write about the last time stress or worry affected you physically. What was happening?",
+  "What's one thing about being a man that nobody prepared you for?",
+  "What would change if you stopped comparing yourself to other men?",
+  "Write about something you've been carrying silently for years.",
+  "What does real rest look like for you - and when did you last have it?",
+  "What's the most honest thing you've said to yourself this month?",
+  "What are you pretending to be okay with that you're not okay with?"
+];
+
+let currentPromptIndex = Math.floor(Math.random() * PROMPTS.length);
+
+/* =============================================
+   INIT
+============================================= */
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  document.getElementById('initTs').textContent = now();
+  document.getElementById('journalPrompt').textContent = PROMPTS[currentPromptIndex];
+  renderEntries();
+  renderMoodLog();
+
+  // chat input enter key
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+});
+
+// Check PIN from storage
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem('mancave_data') || '{}');
+    journalEntries = d.entries || [];
+    moodLog        = d.moods  || [];
+    trackLog       = d.trackLog || [];
+    trackPrep      = d.trackPrep || { noticed: '', howLong: '', meds: '', afraid: '' };
+    chatHistory    = d.chat   || [];
+    autoLock       = d.autoLock !== false;
+    voiceMode      = d.voiceMode || false;
+
+    if (voiceMode) applyVoiceToggle();
+    document.getElementById('autoLockToggle').classList.toggle('on', autoLock);
+
+    renderTrackLog();
+    document.getElementById('trackNoticed').value = trackPrep.noticed || '';
+    document.getElementById('trackHowLong').value = trackPrep.howLong || '';
+    document.getElementById('trackMeds').value = trackPrep.meds || '';
+    document.getElementById('trackAfraid').value = trackPrep.afraid || '';
+
+    // Restore colors
+    const savedColors = JSON.parse(localStorage.getItem('mancave_colors') || '{}');
+    Object.entries(savedColors).forEach(([varName, val]) => {
+      document.documentElement.style.setProperty(varName, val);
+    });
+    syncColorPickers(savedColors);
+
+    // Restore photo
+    const savedPhoto = localStorage.getItem('mancave_photo') || '';
+    if (savedPhoto) showPhotoPreview(savedPhoto);
+
+  } catch(e) {}
+}
+
+function saveData() {
+  try {
+    localStorage.setItem('mancave_data', JSON.stringify({
+      entries: journalEntries,
+      moods: moodLog,
+      trackLog,
+      trackPrep,
+      chat: chatHistory,
+      autoLock,
+      voiceMode
+    }));
+  } catch(e) {}
+}
+
+function getPin() {
+  return localStorage.getItem('mancave_pin') || DEFAULT_PIN;
+}
+
+/* =============================================
+   PIN SCREEN
+============================================= */
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === getPin()) {
+    enterApp();
+  } else {
+    document.getElementById('pinError').textContent = 'Wrong PIN. Try again.';
+    pinBuffer = '';
+    updatePinDots();
+  }
+}
+
+function enterApp() {
+  document.getElementById('screen-pin').classList.remove('active');
+  document.getElementById('screen-main').classList.add('active');
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pinError').textContent = '';
+}
+
+function lockApp() {
+  document.getElementById('screen-main').classList.remove('active');
+  document.getElementById('screen-pin').classList.add('active');
+}
+
+/* =============================================
+   NAVIGATION
+============================================= */
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  document.getElementById('contentArea').scrollTop = 0;
+}
+
+function openSettings() {
+  switchTab('locker');
+}
+
+/* =============================================
+   MARCUS CHAT + CLAUDE API
+============================================= */
+function now() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('chatContainer');
+  const msg = document.createElement('div');
+  msg.className = 'chat-msg ' + (role === 'marcus' ? 'marcus' : 'user');
+
+  if (role === 'marcus') {
+    msg.innerHTML = `<div class="msg-label">🎱 Marcus</div>${escapeHtml(text)}<span class="ts">${now()}</span>`;
+  } else {
+    msg.innerHTML = `${escapeHtml(text)}<span class="ts">${now()}</span>`;
+  }
+
+  container.appendChild(msg);
+  msg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+  chatHistory.push({ role: role === 'user' ? 'user' : 'assistant', content: text });
+  saveData();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  addMessage('user', text);
+
+  document.getElementById('typingIndicator').classList.add('show');
+  document.getElementById('typingIndicator').scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+  // Simulated thinking delay so it feels like a real reply, not an instant lookup
+  const delay = 550 + Math.random() * 700;
+  setTimeout(() => {
+    const reply = voiceMode ? getWomanVoiceReply(text) : getMarcusReply(text);
+    document.getElementById('typingIndicator').classList.remove('show');
+    addMessage('marcus', reply);
+  }, delay);
+}
+
+/* =============================================
+   OFFLINE MARCUS - TOPIC-MATCHED RESPONSE ENGINE
+   No API, no key, no cost - works for every buyer instantly.
+============================================= */
+
+const MARCUS_TOPICS = [
+  {
+    keys: ['size', 'small', 'inches', 'length', 'big enough', 'measure'],
+    replies: [
+      "Average erect length is 5.1 to 5.5 inches. 85% of guys fall in that range. Whatever you saw in porn or heard in a locker room was never a fair sample - that's the highlight reel, not reality. You're probably normal. Not 'small for a man' - statistically normal.",
+      "Here's the thing nobody tells you - the question isn't your size, it's what you do with what you've got. Research on sexual satisfaction consistently puts confidence, effort, and attentiveness way above size. A man who's present beats a man who's insecure, every time."
+    ]
+  },
+  {
+    keys: ['cant get hard', "can't get hard", 'erectile', 'ed', 'lose my erection', 'lost my erection', 'performance anxiety', 'nervous', 'stage fright'],
+    replies: [
+      "If you're under 40 and this is happening, it's almost always psychological, not physical. Performance anxiety kicks off an adrenaline response and that cuts blood flow right when you need it. The fix isn't a pill - it's getting out of your own head in the moment.",
+      "Quick gut check - do you wake up with a morning erection? If yes, the plumbing works fine. That means whatever's happening in the moment is mental, not physical. Losing it during sex but waking up hard is a very specific, very common pattern."
+    ]
+  },
+  {
+    keys: ['premature', 'finish too fast', 'last longer', 'too quick', 'quick'],
+    replies: [
+      "Premature ejaculation affects roughly 1 in 3 men - you are nowhere near alone in this. Start-stop technique, slowing your pace down, and pelvic floor exercises are the real fixes. It's trainable, not permanent."
+    ]
+  },
+  {
+    keys: ['tired', 'exhausted', 'sleep', 'no energy', 'insomnia'],
+    replies: [
+      "Testosterone gets produced during deep sleep. Cut your sleep, you cut your T, and that hits your libido and your performance both. It's non-negotiable - no supplement outworks bad sleep."
+    ]
+  },
+  {
+    keys: ['drink', 'alcohol', 'smoke', 'smoking', 'porn', 'weed'],
+    replies: [
+      "Straight talk - alcohol, smoking, and heavy porn use all directly work against sexual function. Porn especially rewires what your brain expects arousal to look like over time. None of this is about judgment, it's just cause and effect."
+    ]
+  },
+  {
+    keys: ['herb', 'natural', 'supplement', 'remedy', 'maca', 'ashwagandha', 'ginseng'],
+    replies: [
+      "Maca root for libido, ashwagandha for cortisol and stress, Korean red ginseng for erection quality, horny goat weed for blood flow, L-arginine for nitric oxide production. None of these are magic overnight - they work with consistency over weeks. Check The Truth tab, there's a full remedy list."
+    ]
+  },
+  {
+    keys: ['exercise', 'gym', 'workout', 'cardio', 'legs'],
+    replies: [
+      "Leg day and cardio directly improve circulation, and circulation is the whole game for erection quality. Most underrated fix there is. Kegels help too - strengthens the muscles that control the whole show."
+    ]
+  },
+  {
+    keys: ['angry', 'anger', 'mad', 'pissed', 'furious', 'rage'],
+    replies: [
+      "Anger's usually a cover for something underneath - hurt, fear, feeling disrespected, feeling powerless. What's actually under it for you right now? You don't have to have the answer yet, just sit with the question.",
+      "You're allowed to be angry. What I'd ask is - is this anger asking to be heard, or is it asking you to do something you'll regret later? Those are two very different things."
+    ]
+  },
+  {
+    keys: ['money', 'broke', 'financ', 'debt', 'job', 'unemployed', 'fired', 'laid off'],
+    replies: [
+      "Money stress hits a man's sense of self hard, especially if you were raised to believe providing equals worth. That belief is old and it's not entirely true anymore, but it doesn't make the pressure less real. What's the actual number you're staring down?",
+      "Financial pressure is one of the heaviest things a man carries quietly. You don't have to have it solved tonight. What's one concrete thing you can do this week, even a small one?"
+    ]
+  },
+  {
+    keys: ['breakup', 'broke up', 'divorce', 'she left', 'ex girlfriend', 'ex wife', 'cheated'],
+    replies: [
+      "That kind of loss doesn't get smaller fast, no matter what anyone tells you. Give yourself permission to actually feel it instead of just powering through. What's the hardest part of it right now, today?",
+      "Getting cheated on or walked out on messes with your sense of judgment - you start questioning everything you thought you knew. That's a normal reaction to betrayal, not a sign something's wrong with you."
+    ]
+  },
+  {
+    keys: ['lonely', 'alone', 'no friends', 'isolated'],
+    replies: [
+      "Loneliness hits men especially hard because a lot of us were never taught how to build or keep close friendships past our twenties. It's not weakness that you feel it - it's the cost of a system that told men to go it alone."
+    ]
+  },
+  {
+    keys: ['depress', 'hopeless', 'worthless', 'no point', 'give up'],
+    replies: [
+      "That's heavy, and I'm not going to brush past it. If it's getting to the point where you're feeling hopeless or like there's no point, that's worth talking to someone in person about - a doctor, a counselor, someone who can actually be there with you. I mean that seriously, not as a brush-off."
+    ]
+  },
+  {
+    keys: ['suicid', 'kill myself', 'end it', 'not worth living'],
+    replies: [
+      "I hear you, and I want you to reach out right now to someone who can help in real time - call or text 988 (Suicide & Crisis Lifeline) if you're in the US, or your local emergency line. You matter, and this feeling can shift with the right support. Please don't sit with this alone tonight."
+    ]
+  },
+  {
+    keys: ['confiden', 'insecure', 'not good enough', "don't measure up"],
+    replies: [
+      "Confidence isn't something you wait to feel before you act - it's built by acting anyway, even shaky. What's one thing you did today that took more guts than you gave yourself credit for?"
+    ]
+  },
+  {
+    keys: ['relationship', 'girlfriend', 'wife', 'partner', 'marriage'],
+    replies: [
+      "Relationships get harder to read as women get more independent - the old script most men were handed doesn't apply the same way anymore. What's the actual thing happening between you two right now?"
+    ]
+  },
+  {
+    keys: ['hello', 'hi', 'hey', 'sup', "what's up", 'yo'],
+    replies: [
+      "Hey. Pull up a chair - what's actually on your mind tonight?",
+      "What's going on, man. I'm here, talk to me straight."
+    ]
+  }
+];
+
+const MARCUS_FALLBACKS = [
+  "Say more about that - I want to understand what's actually going on, not just the surface of it.",
+  "I hear you. What's the part of this that's weighing on you the most right now?",
+  "Alright, walk me through it. What happened, and what's it doing to you?",
+  "That's real. What do you think you actually need right now - to vent, to figure something out, or just not to be alone with it?"
+];
+
+function getMarcusReply(text) {
+  const lower = text.toLowerCase();
+  for (const topic of MARCUS_TOPICS) {
+    if (topic.keys.some(k => lower.includes(k))) {
+      return topic.replies[Math.floor(Math.random() * topic.replies.length)];
+    }
+  }
+  return MARCUS_FALLBACKS[Math.floor(Math.random() * MARCUS_FALLBACKS.length)];
+}
+
+const WOMAN_TOPICS = [
+  {
+    keys: ['size', 'small', 'inches', 'length'],
+    replies: [
+      "Honestly? Size is way down the list of what makes sex good for most women. Confidence, being present, actually paying attention to her - that's what we remember. A man who's anxious about his size usually makes it awkward for both of you, and that's the part that actually matters."
+    ]
+  },
+  {
+    keys: ['cheat', 'cheated', 'affair'],
+    replies: [
+      "I won't sugarcoat this - cheating breaks something that's hard to rebuild, on both sides. But I'll say this too - a lot of men cheat out of loneliness or feeling unseen, not just lust. That doesn't excuse it, but it's worth understanding if you're trying not to repeat it."
+    ]
+  },
+  {
+    keys: ['pull away', 'distant', 'cold', 'lost interest', 'stopped trying'],
+    replies: [
+      "When a woman pulls away, it's rarely sudden from her side - it usually built up over small moments where she felt unheard or unseen. It's not always about one big thing. What's a moment recently where you felt her pull back a little?"
+    ]
+  },
+  {
+    keys: ['angry', 'anger', 'yell', 'yelled'],
+    replies: [
+      "Anger scares women off faster than almost anything else, even when it's justified. What most of us actually want is for you to tell us what's underneath it - hurt, fear, feeling dismissed. We can work with that. We can't work with a wall."
+    ]
+  },
+  {
+    keys: ['provide', 'provider', 'money', 'job'],
+    replies: [
+      "A lot of women today don't need a man to provide - we can do that ourselves. What we actually want is presence, partnership, someone who shows up emotionally. That old script about being 'the provider' isn't what most of us are grading you on anymore."
+    ]
+  },
+  {
+    keys: ['hello', 'hi', 'hey'],
+    replies: [
+      "Hey. I'll give it to you straight, no games. What do you want to talk through?"
+    ]
+  }
+];
+
+const WOMAN_FALLBACKS = [
+  "I'll be honest with you instead of polite - what's really going on underneath what you just said?",
+  "Talk to me like I'm someone who actually wants to understand, because I do. What's the real story here?",
+  "I'm not here to make you feel good, I'm here to tell you the truth. So - what actually happened?"
+];
+
+function getWomanVoiceReply(text) {
+  const lower = text.toLowerCase();
+  for (const topic of WOMAN_TOPICS) {
+    if (topic.keys.some(k => lower.includes(k))) {
+      return topic.replies[Math.floor(Math.random() * topic.replies.length)];
+    }
+  }
+  return WOMAN_FALLBACKS[Math.floor(Math.random() * WOMAN_FALLBACKS.length)];
+}
+
+function clearChat() {
+  if (!confirm('Clear all chat history with Marcus?')) return;
+  chatHistory = [];
+  const container = document.getElementById('chatContainer');
+  container.innerHTML = `<div class="chat-msg marcus">
+    <div class="msg-label">🎱 Marcus</div>
+    Fresh start. Pull up a chair - what's on your mind?
+    <span class="ts">${now()}</span>
+  </div>`;
+  saveData();
+  showToast('Chat cleared');
+}
+
+/* =============================================
+   WOMAN'S VOICE TOGGLE
+============================================= */
+function toggleVoice() {
+  voiceMode = !voiceMode;
+  applyVoiceToggle();
+  saveData();
+
+  const msg = voiceMode
+    ? "Switching perspectives. I'll be giving you the woman's honest take now - same care, different lens."
+    : "Back to Marcus mode. Let's keep talking.";
+  addMessage('marcus', msg);
+}
+
+function applyVoiceToggle() {
+  const toggle = document.getElementById('voiceToggle');
+  const setting = document.getElementById('voiceSettingToggle');
+  toggle.classList.toggle('on', voiceMode);
+  setting.classList.toggle('on', voiceMode);
+  toggle.querySelector('.vt-emoji').textContent = voiceMode ? '🎱' : '👩';
+}
+
+function toggleVoiceFromSettings() {
+  voiceMode = !voiceMode;
+  applyVoiceToggle();
+  saveData();
+  showToast(voiceMode ? "Woman's Voice ON" : 'Marcus Mode ON');
+}
+
+/* =============================================
+   TRUTH SECTION
+============================================= */
+function toggleTruth(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.truth-card.open').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+/* =============================================
+   JOURNAL
+============================================= */
+function refreshPrompt(btn) {
+  btn.classList.add('spin');
+  setTimeout(() => btn.classList.remove('spin'), 400);
+  currentPromptIndex = (currentPromptIndex + 1) % PROMPTS.length;
+  document.getElementById('journalPrompt').textContent = PROMPTS[currentPromptIndex];
+}
+
+function saveEntry() {
+  const text = document.getElementById('journalEntry').value.trim();
+  if (!text) { showToast('Write something first.'); return; }
+
+  journalEntries.unshift({
+    id: Date.now(),
+    text,
+    date: new Date().toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'short', day:'numeric' }),
+    ts: Date.now()
+  });
+
+  saveData();
+  renderEntries();
+  document.getElementById('journalEntry').value = '';
+  showToast('Entry saved 📖');
+}
+
+function clearEntry() {
+  document.getElementById('journalEntry').value = '';
+}
+
+function renderEntries() {
+  const list = document.getElementById('entriesList');
+  if (!journalEntries.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><p>No entries yet.<br>Your pages are waiting.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = journalEntries.map((e, i) => `
+    <div class="entry-item" onclick="openEntry(${i})">
+      <span class="entry-date">${e.date}</span>
+      <div class="entry-preview">${escapeHtml(e.text)}</div>
+      <button class="entry-del" onclick="deleteEntry(event, ${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function openEntry(i) {
+  currentModalIndex = i;
+  const e = journalEntries[i];
+  document.getElementById('modalDate').textContent = e.date;
+  document.getElementById('modalBody').textContent = e.text;
+  document.getElementById('entryModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('entryModal').classList.remove('open');
+  currentModalIndex = null;
+}
+
+function deleteEntry(evt, i) {
+  evt.stopPropagation();
+  journalEntries.splice(i, 1);
+  saveData();
+  renderEntries();
+  showToast('Entry deleted');
+}
+
+function deleteFromModal() {
+  if (currentModalIndex !== null) {
+    journalEntries.splice(currentModalIndex, 1);
+    saveData();
+    renderEntries();
+    closeModal();
+    showToast('Entry deleted');
+  }
+}
+
+/* =============================================
+   MOOD TRACKER
+============================================= */
+function selectMood(btn, label, emoji) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  moodLog.unshift({
+    label,
+    emoji,
+    date: new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }),
+    time: now()
+  });
+
+  if (moodLog.length > 30) moodLog = moodLog.slice(0, 30);
+  saveData();
+  renderMoodLog();
+  showToast('Mood logged ' + emoji);
+}
+
+function renderMoodLog() {
+  const el = document.getElementById('moodLog');
+  if (!moodLog.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🌑</div><p>No check-ins yet.<br>How are you feeling right now?</p></div>`;
+    return;
+  }
+
+  el.innerHTML = moodLog.slice(0, 7).map(m => `
+    <div class="mood-row">
+      <span class="row-emoji">${m.emoji}</span>
+      <div class="row-info">
+        <div class="row-label">${m.label}</div>
+        <div class="row-date">${m.date} · ${m.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* =============================================
+   THE TRACK - HEALTH TRACKER
+============================================= */
+function addTrackEntry() {
+  const didEl = document.getElementById('trackDidInput');
+  const feltEl = document.getElementById('trackFeltInput');
+  const did = didEl.value.trim();
+  const felt = feltEl.value.trim();
+
+  if (!did && !felt) { showToast('Add something first'); return; }
+
+  const now = new Date();
+  trackLog.unshift({
+    did,
+    felt,
+    date: now.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+    time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  });
+  if (trackLog.length > 14) trackLog = trackLog.slice(0, 14);
+
+  didEl.value = '';
+  feltEl.value = '';
+
+  renderTrackLog();
+  saveData();
+  showToast('Entry logged 📊');
+}
+
+function renderTrackLog() {
+  const el = document.getElementById('trackLog');
+  if (!el) return;
+  if (!trackLog.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>No entries yet.<br>What did you do for your body today?</p></div>`;
+    return;
+  }
+
+  el.innerHTML = trackLog.map(t => `
+    <div class="mood-row">
+      <span class="row-emoji">📊</span>
+      <div class="row-info">
+        <div class="row-label">${escapeHtml(t.did || '(no action logged)')}</div>
+        <div class="row-sub" style="font-size:12px;opacity:0.75;margin-top:2px;">${escapeHtml(t.felt || '')}</div>
+        <div class="row-date">${t.date} · ${t.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function saveTrackPrep() {
+  trackPrep = {
+    noticed: document.getElementById('trackNoticed').value.trim(),
+    howLong: document.getElementById('trackHowLong').value.trim(),
+    meds: document.getElementById('trackMeds').value.trim(),
+    afraid: document.getElementById('trackAfraid').value.trim()
+  };
+  saveData();
+  showToast('Doctor-visit notes saved 🩺');
+}
+
+/* =============================================
+   SETTINGS
+============================================= */
+function changePIN() {
+  const current = prompt('Enter your current PIN:');
+  if (current !== getPin()) { alert('Wrong PIN.'); return; }
+  const newPin = prompt('Enter your new 4-digit PIN:');
+  if (!newPin || newPin.length !== 4 || isNaN(newPin)) { alert('PIN must be exactly 4 digits.'); return; }
+  localStorage.setItem('mancave_pin', newPin);
+  showToast('PIN updated 🔑');
+}
+
+function toggleAutoLock() {
+  autoLock = !autoLock;
+  document.getElementById('autoLockToggle').classList.toggle('on', autoLock);
+  saveData();
+  showToast(autoLock ? 'Auto-lock ON' : 'Auto-lock OFF');
+}
+
+function clearAllData() {
+  if (!confirm('Wipe everything? Journal, moods, chat - all gone. Cannot be undone.')) return;
+  journalEntries = [];
+  moodLog = [];
+  trackLog = [];
+  trackPrep = { noticed: '', howLong: '', meds: '', afraid: '' };
+  chatHistory = [];
+  saveData();
+  renderEntries();
+  renderMoodLog();
+  renderTrackLog();
+  document.getElementById('trackNoticed').value = '';
+  document.getElementById('trackHowLong').value = '';
+  document.getElementById('trackMeds').value = '';
+  document.getElementById('trackAfraid').value = '';
+  showToast('Cave data wiped ⚠️');
+}
+
+/* =============================================
+   AUTO-LOCK ON VISIBILITY CHANGE
+============================================= */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && autoLock) {
+    // lock on hide
+    document.getElementById('screen-main').classList.remove('active');
+    document.getElementById('screen-pin').classList.add('active');
+    pinBuffer = '';
+    updatePinDots();
+  }
+});
+
+/* =============================================
+   COLOR CUSTOMIZATION
+============================================= */
+const COLOR_MAP = {
+  '--primary':     '#clr-primary',
+  '--bg':          '#clr-bg',
+  '--accent':      '#clr-accent',
+  '--text':        '#clr-text',
+  '--card':        '#clr-card',
+  '--card-border': '#clr-border'
+};
+
+const COLOR_IDS = {
+  '--primary':     'clr-primary',
+  '--bg':          'clr-bg',
+  '--accent':      'clr-accent',
+  '--text':        'clr-text',
+  '--card':        'clr-card',
+  '--card-border': 'clr-border'
+};
+
+function applyColor(varName, value) {
+  document.documentElement.style.setProperty(varName, value);
+}
+
+function saveColors() {
+  const colors = {};
+  Object.entries(COLOR_IDS).forEach(([varName, id]) => {
+    const el = document.getElementById(id);
+    if (el) colors[varName] = el.value;
+  });
+  localStorage.setItem('mancave_colors', JSON.stringify(colors));
+  showToast('Colors saved 🎨');
+}
+
+function resetColors() {
+  const defaults = {
+    '--primary':     '#1a6aff',
+    '--bg':          '#0a0502',
+    '--accent':      '#c9a84c',
+    '--text':        '#f0f0f0',
+    '--card':        '#1c1208',
+    '--card-border': '#2a1a0c'
+  };
+  Object.entries(defaults).forEach(([v, val]) => {
+    document.documentElement.style.setProperty(v, val);
+  });
+  syncColorPickers(defaults);
+  localStorage.removeItem('mancave_colors');
+  showToast('Colors reset');
+}
+
+function syncColorPickers(colors) {
+  Object.entries(COLOR_IDS).forEach(([varName, id]) => {
+    const el = document.getElementById(id);
+    if (el && colors[varName]) el.value = colors[varName];
+  });
+}
+
+/* =============================================
+   PHOTO UPLOAD
+============================================= */
+function handlePhotoUpload(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    localStorage.setItem('mancave_photo', dataUrl);
+    showPhotoPreview(dataUrl);
+    showToast('Photo saved 📸');
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPhotoPreview(dataUrl) {
+  const img   = document.getElementById('photoPreview');
+  const icon  = document.getElementById('photoIcon');
+  img.src = dataUrl;
+  img.classList.add('show');
+  if (icon) icon.style.display = 'none';
+}
+
+/* =============================================
+   BACKUP & RESTORE
+============================================= */
+function downloadBackup() {
+  const backup = {
+    version: 1,
+    exported: new Date().toISOString(),
+    entries: journalEntries,
+    moods:   moodLog,
+    trackLog: trackLog,
+    trackPrep: trackPrep,
+    chat:    chatHistory,
+    colors:  JSON.parse(localStorage.getItem('mancave_colors') || '{}'),
+    settings: { autoLock, voiceMode }
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'mancave-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded ⬇️');
+}
+
+function uploadBackup(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (!backup.version) throw new Error('Invalid backup');
+
+      journalEntries = backup.entries  || [];
+      moodLog        = backup.moods    || [];
+      trackLog       = backup.trackLog || [];
+      trackPrep      = backup.trackPrep || { noticed: '', howLong: '', meds: '', afraid: '' };
+      chatHistory    = backup.chat     || [];
+      autoLock       = backup.settings?.autoLock !== false;
+      voiceMode      = backup.settings?.voiceMode || false;
+
+      if (backup.colors) {
+        localStorage.setItem('mancave_colors', JSON.stringify(backup.colors));
+        Object.entries(backup.colors).forEach(([v, val]) => {
+          document.documentElement.style.setProperty(v, val);
+        });
+        syncColorPickers(backup.colors);
+      }
+
+      saveData();
+      renderEntries();
+      renderMoodLog();
+      renderTrackLog();
+      document.getElementById('trackNoticed').value = trackPrep.noticed || '';
+      document.getElementById('trackHowLong').value = trackPrep.howLong || '';
+      document.getElementById('trackMeds').value = trackPrep.meds || '';
+      document.getElementById('trackAfraid').value = trackPrep.afraid || '';
+      applyVoiceToggle();
+      document.getElementById('autoLockToggle').classList.toggle('on', autoLock);
+      showToast('Backup restored ✅');
+    } catch(err) {
+      showToast('Invalid backup file');
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
